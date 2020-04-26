@@ -3,18 +3,18 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
+title: tmp
 subtitle: ''
 description: ''
-keywords:
-author: John Doe
-language: en
+keywords: giao
+author: hackX
+language: zh-CN
 timezone: ''
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: http://yoursite.com
-root: /
+url: https://hsxyl.github.io/hsxyl.github.io
+root: /hsxyl.github.io/
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
@@ -93,7 +93,7 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: pure
+theme: next
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
@@ -102,8 +102,20 @@ deploy:
   repository: https://github.com/hsxyl/hsxyl.github.io
   branch: master
 
+# search setting
+search:
+  path: search.xml
+  field: post
+  format: html
+  limit: 10000
+
+# 文章结尾配置
+post_end_tag:
+      enabled: true
+      icon: paw
+
 # hexo-neat
-neat_enable: true
+neat_enable: false
 neat_html:
   enable: true
   exclude:
@@ -117,4 +129,15 @@ neat_js:
   output:
   compress:
   exclude:
-    - '*.min.js'
+    - '**/*.min.js'
+    - '**/jquery.fancybox.pack.js'
+    - '**/index.js' 
+    - '**/clicklove.js'
+    - '**/fireworks.js'
+    - '**/bookmark.js'
+    - '**/algolia-search.js'
+    - '**/utils.js'
+    - '**/motion.js'
+    - '**/schemes/*.js'
+    - '**/next-boot.js'
+    - '**/local-search.js'
