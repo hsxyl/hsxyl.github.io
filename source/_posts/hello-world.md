@@ -1,7 +1,7 @@
 ---
 title: Hello World
 categories:
-- test
+- hello
 tags:
 - jQuery
 ---
