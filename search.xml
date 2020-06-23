@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>article title</title>
-    <url>/2020/04/23/article-title/</url>
-    <content><![CDATA[]]></content>
-  </entry>
-  <entry>
     <title>Hello World</title>
-    <url>/2020/04/26/hello-world/</url>
+    <url>/2020/06/04/hello-world/</url>
     <content><![CDATA[<p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
 <h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
 
@@ -23,10 +18,74 @@
 <p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
 ]]></content>
       <categories>
-        <category>test</category>
+        <category>hello</category>
       </categories>
       <tags>
         <tag>jQuery</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>test</title>
+    <url>/2020/06/04/test/</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>记aop内部调用不生效</title>
+    <url>/2020/06/20/%E8%AE%B0aop%E5%86%85%E9%83%A8%E8%B0%83%E7%94%A8%E4%B8%8D%E7%94%9F%E6%95%88/</url>
+    <content><![CDATA[<p>[toc]</p>
+<h1 id="工作记录"><a href="#工作记录" class="headerlink" title="工作记录"></a>工作记录</h1><ul>
+<li><strong>需求:</strong> 有一个执行任务的功能，需要持久化任务的执行状态。</li>
+<li><strong>为什么用aop:</strong> 执行任务的功能和记录任务状态变化的功能如果是耦合的，就会在执行任务的逻辑里面添加一堆if..else去判断任务的状态然后添加持久化的逻辑，代码可读性，维护性都很差，所以采用aop+注解的方式去解耦。</li>
+<li><strong>遇到的问题:</strong> <ol>
+<li>非接口定义的方法没有被代理<ul>
+<li>原因是spring的aop动态代理底层有两层实现：基于JDK的和基于gclib的，两者的一个重要区别在于JDK代理只能代理接口定义的方法，gclib则无该限制，对于接口实现类会默认使用基于JDK的动态代理。</li>
+</ul>
+</li>
+<li>使用了gclib后，内部调用方法无法被代理<ul>
+<li>gclib动态代理的大致原理是创建一个被代理类的子类，通过实现父类的非final方法实现拦截监听的.(也就是说方法具体的实现gclib管不着只是在执行前后帮你生成了一些代码，所以内部的调用他无能为力)</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+<h1 id="代码实例"><a href="#代码实例" class="headerlink" title="代码实例"></a>代码实例</h1><ul>
+<li>定义service和给出实现，实现类里面存着内部调用关系：<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AopDemoServiceImpl</span> <span class="keyword">implements</span> <span class="title">AopDemoService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"I am method1"</span>);</span><br><span class="line">        method2();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"I am method2"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>定义切点和通知来监听实现类的两个方法：<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Pointcut</span>(value = <span class="string">"execution(* com.example.demo.service.AopDemoServiceImpl.*(..))"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">demoPointCut</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Around</span>(value = <span class="string">"demoPointCut()"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">demoAroud</span><span class="params">(ProceedingJoinPoint pjp)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">        <span class="comment">// 输出方法名</span></span><br><span class="line">        System.out.println(<span class="string">"before method:"</span>+pjp.getSignature());</span><br><span class="line">        pjp.proceed();</span><br><span class="line">        System.out.println(<span class="string">"after method:"</span>+pjp.getSignature());</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></li>
+<li>编写一个测试类来看看调用AopDemoServiceImpl.method1()会发生什么：<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">public</span> AopDemoService aopDemoService;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">aopTest</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    aopDemoService.method1();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>我们期望的情况应该是aop里面的提示信息环绕着方法的执行被打印出来,如下：<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">before method:<span class="keyword">void</span> com.example.demo.service.AopDemoServiceImpl.method1()</span><br><span class="line">I am method1</span><br><span class="line">before method:<span class="keyword">void</span> com.example.demo.service.AopDemoServiceImpl.method2()</span><br><span class="line">I am method2</span><br><span class="line">after method:<span class="keyword">void</span> com.example.demo.service.AopDemoServiceImpl.method2()</span><br><span class="line">after method:<span class="keyword">void</span> com.example.demo.service.AopDemoServiceImpl.method1()</span><br></pre></td></tr></table></figure></li>
+<li>然而实际输出的确是：<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">before method:<span class="keyword">void</span> com.example.demo.service.AopDemoServiceImpl.method1()</span><br><span class="line">I am method1</span><br><span class="line">I am method2</span><br><span class="line">after method:<span class="keyword">void</span> com.example.demo.service.AopDemoServiceImpl.method1()</span><br></pre></td></tr></table></figure>
+原因上文也提到了，gclib生成被代理对象的子类，重写子类的非final方法，但是并非去重写方法的具体细节，而是在方法的前后增加了逻辑，然后再去调用原本的方法，所以对于内部的调用gclib无能为力。</li>
+</ul>
+<h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><ul>
+<li><ol>
+<li><p>第一种思路是，既然代理类无法感知到内部调用，那我们修改原本的内部调用，去调用代理类生成后的方法。</p>
+<ul>
+<li>1.1 使用<code>AopContext.currentProxy()</code>去获取代理类： <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"I am method1"</span>);</span><br><span class="line">        <span class="comment">// 另外注意：要设置aop实体暴露出来。在springboot的入口类里面加上@EnableAspectJAutoProxy(proxyTargetClass = true, exposeProxy = true)</span></span><br><span class="line">        ((AopDemoServiceImpl) AopContext.currentProxy()).method2();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"I am method2"</span>);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></li>
+<li>1.2 将代理类生成后注入进来:</li>
+</ul>
+<p>从ApplicationContext获取代理对象:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> ApplicationContext context;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> AopDemoServiceImpl proxyObject;</span><br><span class="line"><span class="meta">@PostConstruct</span></span><br><span class="line"><span class="comment">// 初始化方法，在IOC注入完成后会执行该方法</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">setSelf</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 从spring上下文获取代理对象（直接通过proxyObject=this是不对的，this是目标对象）</span></span><br><span class="line">    <span class="comment">// 此种方法不适合于prototype Bean，因为每次getBean返回一个新的Bean</span></span><br><span class="line">    proxyObject = context.getBean(AopDemoServiceImpl<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>或者使用@Lazy注解去延迟加载：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">private AopDemoServiceImpl proxyObject;</span><br><span class="line"></span><br><span class="line">@Autowired</span><br><span class="line">@Lazy</span><br><span class="line">public void setTestService(AopDemoServiceImpl proxyObject) &#123;</span><br><span class="line">    this.proxyObject &#x3D; proxyObject;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+</li>
+</ul>
+<ol start="3">
+<li>使用aspectJ织入，aspectJ直接在源类上进行字节码增强，而非代理的方式去实现aop。</li>
+</ol>
+<h1 id="Todo"><a href="#Todo" class="headerlink" title="Todo"></a>Todo</h1><ul>
+<li><input disabled="" type="checkbox"> 目前只是从别人的博客上看懂了这g过程，需要深入研究gclib生成过程，学习java编译过程原理，查看gclib生成的class文件，找到实际的证据。 </li>
+<li><input disabled="" type="checkbox"> 学习AspectJ</li>
+<li><input disabled="" type="checkbox"> AopContext.currentProxy()是如何实现的</li>
+<li><input disabled="" type="checkbox"> 延迟加载注解的原理 </li>
+</ul>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><p><a href="https://blog.csdn.net/danchu/article/details/70238002" target="_blank" rel="noopener">CGLIB(Code Generation Library)详解</a></p>
+</li>
+<li><p><a href="https://www.cnblogs.com/wulm/p/9486531.html" target="_blank" rel="noopener">spring aop问题解决</a></p>
+</li>
+</ul>
+]]></content>
   </entry>
 </search>
