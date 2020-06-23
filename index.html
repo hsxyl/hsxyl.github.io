@@ -21,9 +21,9 @@
   </script>
 
   <meta property="og:type" content="website">
-<meta property="og:title" content="tmp">
+<meta property="og:title" content="xsb">
 <meta property="og:url" content="https://hsxyl.github.io/hsxyl.github.io/index.html">
-<meta property="og:site_name" content="tmp">
+<meta property="og:site_name" content="xsb">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:author" content="hackX">
 <meta property="article:tag" content="giao">
@@ -42,7 +42,7 @@
   };
 </script>
 
-  <title>tmp</title>
+  <title>xsb</title>
   
 
 
@@ -73,7 +73,7 @@
   </style>
 </noscript>
 
-<link rel="alternate" href="/atom.xml" title="tmp" type="application/atom+xml">
+<link rel="alternate" href="/atom.xml" title="xsb" type="application/atom+xml">
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage">
@@ -96,7 +96,7 @@
 
     <a href="/" class="brand" rel="start">
       <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">tmp</h1>
+      <h1 class="site-title">xsb</h1>
       <span class="logo-line-after"><i></i></span>
     </a>
   </div>
@@ -178,7 +178,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="tmp">
+      <meta itemprop="name" content="xsb">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
@@ -207,8 +207,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>[toc]</p>
-<h1 id="工作记录"><a href="#工作记录" class="headerlink" title="工作记录"></a>工作记录</h1><ul>
+          <h1 id="工作记录"><a href="#工作记录" class="headerlink" title="工作记录"></a>工作记录</h1><ul>
 <li><strong>需求:</strong> 有一个执行任务的功能，需要持久化任务的执行状态。</li>
 <li><strong>为什么用aop:</strong> 执行任务的功能和记录任务状态变化的功能如果是耦合的，就会在执行任务的逻辑里面添加一堆if..else去判断任务的状态然后添加持久化的逻辑，代码可读性，维护性都很差，所以采用aop+注解的方式去解耦。</li>
 <li><strong>遇到的问题:</strong> <ol>
@@ -225,7 +224,7 @@
 </ul>
 <h1 id="代码实例"><a href="#代码实例" class="headerlink" title="代码实例"></a>代码实例</h1><ul>
 <li>定义service和给出实现，实现类里面存着内部调用关系：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AopDemoServiceImpl</span> <span class="keyword">implements</span> <span class="title">AopDemoService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"I am method1"</span>);</span><br><span class="line">        method2();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"I am method2"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>定义切点和通知来监听实现类的两个方法：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Pointcut</span>(value = <span class="string">"execution(* com.example.demo.service.AopDemoServiceImpl.*(..))"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">demoPointCut</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Around</span>(value = <span class="string">"demoPointCut()"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">demoAroud</span><span class="params">(ProceedingJoinPoint pjp)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">        <span class="comment">// 输出方法名</span></span><br><span class="line">        System.out.println(<span class="string">"before method:"</span>+pjp.getSignature());</span><br><span class="line">        pjp.proceed();</span><br><span class="line">        System.out.println(<span class="string">"after method:"</span>+pjp.getSignature());</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></li>
+<li>定义切点和通知来监听实现类的两个方法：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Pointcut</span>(value = <span class="string">"execution(* com.example.demo.service.AopDemoServiceImpl.*(..))"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">demoPointCut</span><span class="params">()</span> </span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Around</span>(value = <span class="string">"demoPointCut()"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">demoAroud</span><span class="params">(ProceedingJoinPoint pjp)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">    <span class="comment">// 输出方法名</span></span><br><span class="line">    System.out.println(<span class="string">"before method:"</span>+pjp.getSignature());</span><br><span class="line">    pjp.proceed();</span><br><span class="line">    System.out.println(<span class="string">"after method:"</span>+pjp.getSignature());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 <li>编写一个测试类来看看调用AopDemoServiceImpl.method1()会发生什么：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">public</span> AopDemoService aopDemoService;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Test</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">aopTest</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    aopDemoService.method1();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 <li>我们期望的情况应该是aop里面的提示信息环绕着方法的执行被打印出来,如下：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">before method:<span class="keyword">void</span> com.example.demo.service.AopDemoServiceImpl.method1()</span><br><span class="line">I am method1</span><br><span class="line">before method:<span class="keyword">void</span> com.example.demo.service.AopDemoServiceImpl.method2()</span><br><span class="line">I am method2</span><br><span class="line">after method:<span class="keyword">void</span> com.example.demo.service.AopDemoServiceImpl.method2()</span><br><span class="line">after method:<span class="keyword">void</span> com.example.demo.service.AopDemoServiceImpl.method1()</span><br></pre></td></tr></table></figure></li>
 <li>然而实际输出的确是：<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">before method:<span class="keyword">void</span> com.example.demo.service.AopDemoServiceImpl.method1()</span><br><span class="line">I am method1</span><br><span class="line">I am method2</span><br><span class="line">after method:<span class="keyword">void</span> com.example.demo.service.AopDemoServiceImpl.method1()</span><br></pre></td></tr></table></figure>
@@ -291,7 +290,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="tmp">
+      <meta itemprop="name" content="xsb">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
@@ -350,7 +349,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="tmp">
+      <meta itemprop="name" content="xsb">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
